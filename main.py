@@ -153,9 +153,9 @@ class Database:
       else:
         string3="[Author]"
       if(self.settings[3]==0):
-        string4="Date"
+        string4="Rating"
       else:
-        string4="[Date]"
+        string4="[Rating]"
       print(f"(S): Sorting Order    {string1} {string2} {string3} {string4}")
       if(self.settings[4]==0):
         string1="Title"
@@ -193,7 +193,7 @@ class Database:
       if(self.settings[12]==0):
         string3="15"
       else:
-        string3="15]"
+        string3="[15]"
       if(self.settings[13]==0):
         string4="20"
       else:
@@ -210,14 +210,32 @@ class Database:
      if self.settings[13]==1:
         return 20
   def sort(self):
-     if self.settings[4]==1:
+     if self.settings[0]==1:
         database.books.sort(key=lambda x: x.progress, reverse=True)
-     if self.settings[5]==1:
-        database.books.sort(key=lambda x: x.title, reverse=True)
-     if self.settings[6]==1:
-        database.books.sort(key=lambda x: x.author, reverse=True)
+     if self.settings[1]==1:
+        database.books.sort(key=lambda x: x.title)
+     if self.settings[2]==1:
+        database.books.sort(key=lambda x: x.author)
+     if self.settings[3]==1:
+        database.books.sort(key=lambda x: float(x.rating), reverse= True)
+  def display(self,book_index):
+     a=""
+     if self.settings[4]==1:
+        a += str("Title: "+str(database.books[book_index].title))
      if self.settings[7]==1:
-        database.books.sort(key=lambda x: x.date, reverse=True)
+        a += str("Author: "+str(database.books[book_index].author))
+     if self.settings[5]==1:
+        a += str("Rating: "+str(database.books[book_index].rating))
+     if self.settings[6]==1:
+        a += str("Review: "+str(database.books[book_index].review))
+     if self.settings[8]==1:
+        a += str("Status: "+str(database.books[book_index].status))
+     if self.settings[9]==1:
+        a += str("Progress: "+str(database.books[book_index].progress))
+     print(a)
+   
+
+
 class Book:
   def __init__(self, title, author, date, rating, review, progress, status):
     self.title = title
@@ -324,18 +342,21 @@ def library(database):
     current_page=1
     while(repeat == 0):
         print(library_text)
-        pages=int(math.ceil(float(database.num_books)/database.get_page_size()))
+        page_size = database.get_page_size()
+        pages=int(math.ceil(float(database.num_books)/page_size))
         database.sort()
         #print books
-
-
-        
+        for x in range(min(page_size,database.num_books-(current_page-1)*page_size)):
+           database.display(x+(current_page-1)*page_size)
         print(F"Page {current_page} of {pages}")
         user_input = input("Type P followed by a number to change the page.\nType L to add books. Type S to go to settings\n:")
         if(user_input=="L"):
             read_book(database)
         elif(user_input=="S"):
             settings(database)
+        elif(len(user_input)==2 and user_input[1].isnumeric() and user_input[0]=="P"):
+            if int(user_input[1]) <= pages and int(user_input[1]) > 0:
+              current_page = int(user_input[1])
 
     return None
    
